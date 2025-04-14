@@ -4,9 +4,9 @@ const URLS_TO_CACHE = [
   '/',
   '/index.html',
   '/app.css',
-  '/app/data/2022_cutoff.json',
-  '/app/data/2023_cutoff.json',
-  '/app/data/2024_cutoff.json'
+  '/data/2022_cutoff.json',
+  '/data/2023_cutoff.json',
+  '/data/2024_cutoff.json'
 ];
 
 // Install service worker and cache assets
