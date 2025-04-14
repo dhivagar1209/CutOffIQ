@@ -688,7 +688,7 @@ export default function FindCollegesPage() {
             <h2 className="text-2xl font-semibold">
               {loading || isCacheLoading ? "Searching colleges..." : 
                 totalColleges > 0 ? 
-                  `Showing ${displayColleges.length} of ${totalColleges} Colleges` : 
+                  `Showing ${displayColleges.length} of ${totalColleges} Courses` : 
                   "No Colleges Found"
               }
             </h2>
