@@ -184,7 +184,12 @@ export default function BookmarkedCollegesPage() {
                   <CardHeader className="pl-10 pb-4">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-xl">{college.name}</CardTitle>
+                        <div className="flex items-center gap-2">
+                          <div className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded whitespace-nowrap">
+                            Code: {college.id}
+                          </div>
+                          <CardTitle className="text-xl">{college.name}</CardTitle>
+                        </div>
                         <div className="text-muted-foreground text-sm mt-1">{college.location}</div>
                       </div>
                       <div className="flex gap-2 items-center">
@@ -275,6 +280,10 @@ export default function BookmarkedCollegesPage() {
                       <div className="text-sm">
                         <span className="text-muted-foreground">College Type: </span>
                         <span className="font-medium">{college.collegeType}</span>
+                      </div>
+                      <div className="text-sm">
+                        <span className="text-muted-foreground">Counselling Code: </span>
+                        <span className="font-medium">{college.id}</span>
                       </div>
                     </div>
                   </CardContent>

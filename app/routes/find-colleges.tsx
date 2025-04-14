@@ -157,6 +157,13 @@ export default function FindCollegesPage() {
     district: searchParams.get("district") || "all_districts"
   });
 
+  // Add state to track the slider value during dragging
+  const [sliderValues, setSliderValues] = React.useState<[number, number]>(
+    filters.mark 
+      ? [parseInt(filters.mark.split('-')[0]) || 175, parseInt(filters.mark.split('-')[1]) || 185]
+      : [175, 185]
+  );
+
   // Sort function that will be applied to the college data
   const sortColleges = (colleges: DisplayCollege[], option: string): DisplayCollege[] => {
     const sortedColleges = [...colleges];
@@ -493,14 +500,12 @@ export default function FindCollegesPage() {
                 </label>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">{filters.mark || "Drag the slider"}</span>
-                    {filters.mark && (
-                      <span className="text-xs text-muted-foreground">
-                        {filters.mark.includes("-") 
-                          ? `Range: ${filters.mark}` 
-                          : `Exact: ${filters.mark}`}
-                      </span>
-                    )}
+                    <span className="text-sm">
+                      {filters.mark || `${sliderValues[0]}-${sliderValues[1]}`}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      Range: {sliderValues[0]}-{sliderValues[1]}
+                    </span>
                   </div>
                   <Slider 
                     id="mark"
@@ -508,17 +513,16 @@ export default function FindCollegesPage() {
                     min={100}
                     max={200}
                     step={1}
-                    defaultValue={[
-                      filters.mark 
-                        ? parseInt(filters.mark.split('-')[0]) || 175 
-                        : 175, 
-                      filters.mark 
-                        ? parseInt(filters.mark.split('-')[1]) || 185 
-                        : 185
-                    ]}
+                    value={sliderValues}
                     onValueChange={(values) => {
                       if (values.length === 2) {
-                        // Use the debounced handler
+                        // Update the displayed values immediately
+                        setSliderValues([values[0], values[1]]);
+                      }
+                    }}
+                    onValueCommit={(values) => {
+                      if (values.length === 2) {
+                        // Apply filter only when the slider is released
                         if (debounceTimerRef.current) {
                           clearTimeout(debounceTimerRef.current);
                         }
@@ -737,7 +741,12 @@ export default function FindCollegesPage() {
                       {/* Mobile view - stacked layout */}
                       <div className="md:hidden">
                         <div className="flex justify-between">
-                          <h3 className="font-medium text-lg flex-1">{college.name}</h3>
+                          <h3 className="font-medium text-lg flex-1">
+                            <span className="inline-block mr-2 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded whitespace-nowrap">
+                              Code: {college.id}
+                            </span>
+                            {college.name}
+                          </h3>
                           <div className="flex gap-2 items-center ml-2">
                             <button 
                               className="p-1 rounded-full hover:bg-muted transition-colors"
@@ -825,7 +834,12 @@ export default function FindCollegesPage() {
                       {/* Desktop view - table row layout */}
                       <div className="hidden md:grid md:grid-cols-[1fr,1fr,150px,100px,180px] md:items-center">
                         <div>
-                          <div className="font-medium">{college.name}</div>
+                          <div className="font-medium">
+                            <span className="inline-block mr-2 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded whitespace-nowrap">
+                              Code: {college.id}
+                            </span>
+                            {college.name}
+                          </div>
                           <div className="text-sm text-muted-foreground">{college.location}</div>
                         </div>
                         <div>
