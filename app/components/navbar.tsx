@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Search, BookmarkCheck, Home, Menu, X } from "lucide-react";
+import { Search, BookmarkCheck, Home, Menu, X, Github } from "lucide-react";
 
 export function Navbar() {
   const location = useLocation();
@@ -42,6 +42,20 @@ export function Navbar() {
               </Button>
             ))}
           </div>
+          
+          {/* Developer Credit */}
+          <div className="flex items-center">
+            <a 
+              href="https://github.com/dhivagar1209/CutOffIQ" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center"
+            >
+              <Github className="h-3 w-3 mr-1" />
+              <span className="hidden lg:inline-block">Developed by Dhivagar K.V.</span>
+              <span className="lg:hidden">By Dhivagar</span>
+            </a>
+          </div>
         </nav>
 
         {/* Mobile Menu Button */}
@@ -79,6 +93,18 @@ export function Navbar() {
                 </Link>
               </Button>
             ))}
+            
+            {/* Developer Credit in Mobile Menu */}
+            <a 
+              href="https://github.com/dhivagar1209/CutOffIQ" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center p-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Github className="h-4 w-4 mr-2" />
+              Developed by Dhivagar K.V.
+            </a>
           </div>
         </div>
       )}

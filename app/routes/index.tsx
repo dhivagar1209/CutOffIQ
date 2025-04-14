@@ -47,7 +47,7 @@ export default function HomePage() {
               <Button size="lg" asChild className="bg-white text-primary hover:bg-white/90">
                 <Link to="/find-colleges">Find Colleges</Link>
               </Button>
-              <Button size="lg" asChild variant="outline" className="border-white text-white hover:bg-white/10">
+              <Button size="lg" asChild  className="bg-white text-primary hover:bg-white/90">
                 <Link to="/compare">Compare Cutoffs</Link>
               </Button>
             </div>
@@ -263,7 +263,34 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="py-8 bg-card border-t text-center text-sm text-muted-foreground">
         <div className="container mx-auto px-4">
-          <p>© 2025 CutoffIQ - Anna University College Explorer. All cutoff data sourced from Anna University.</p>
+          <p className="mb-2">© 2025 CutoffIQ - Anna University College Explorer. All cutoff data sourced from Anna University.</p>
+          <div className="flex justify-center items-center gap-4 mt-4">
+            <p>Developed by Dhivagar K.V.</p>
+            <a 
+              href="https://github.com/dhivagar1209" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors"
+            >
+              GitHub
+            </a>
+            <a 
+              href="https://github.com/dhivagar1209/CutOffIQ" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors"
+            >
+              Repository
+            </a>
+            <a 
+              href="https://www.linkedin.com/in/dhivagar-k-v-733477289/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors"
+            >
+              LinkedIn
+            </a>
+          </div>
         </div>
       </footer>
     </div>
