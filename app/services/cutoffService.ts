@@ -371,7 +371,7 @@ export async function compareColleges(
         
         // Find cutoff for the specified course and category
         for (const data of collegeData) {
-          if (data.brc.toUpperCase() === courseCode.toUpperCase()) {
+          if (data.brn.toUpperCase() === courseCode.toUpperCase() || data.brc.toUpperCase() === courseCode.toUpperCase()) {
             const mark = getCategoryMark(data, category);
             result[collegeId][year] = mark;
             break;

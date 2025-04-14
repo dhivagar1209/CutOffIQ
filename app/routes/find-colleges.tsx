@@ -761,14 +761,33 @@ export default function FindCollegesPage() {
                             <div className="text-sm truncate">{college.course.toUpperCase()}</div>
                           </div>
                           <div className="text-right">
-                            <div className="text-xs text-muted-foreground">Cutoff</div>
-                            <div className="text-lg font-bold text-primary">{college.cutoff}
+                            <div className="text-xs text-muted-foreground">Cutoff Mark</div>
+                            <div className="flex items-center justify-end">
+                              <span className="text-lg font-bold text-primary">{college.cutoff}</span>
                               {college.previousCutoff && (
-                                <span className="text-xs font-normal ml-1 text-muted-foreground whitespace-nowrap">
-                                  vs {college.previousCutoff} (2023)
+                                <span className="text-sm ml-2 flex items-center">
+                                  <span className="text-muted-foreground">(</span>
+                                  {college.cutoffDifference && (
+                                    <span className={`font-medium ${
+                                      college.cutoffDifference > 0 
+                                        ? 'text-green-600 dark:text-green-400' 
+                                        : college.cutoffDifference < 0 
+                                          ? 'text-red-600 dark:text-red-400' 
+                                          : 'text-blue-600 dark:text-blue-400'
+                                    }`}>
+                                      {college.cutoffDifference > 0 ? '↑' : college.cutoffDifference < 0 ? '↓' : '→'}
+                                      {college.cutoffDifference > 0 ? '+' : ''}{college.cutoffDifference.toFixed(1)}
+                                    </span>
+                                  )}
+                                  <span className="text-muted-foreground">)</span>
                                 </span>
                               )}
                             </div>
+                            {college.previousCutoff && (
+                              <div className="text-xs text-muted-foreground">
+                                2023: {college.previousCutoff}
+                              </div>
+                            )}
                           </div>
                           <div>
                             <div className="text-xs text-muted-foreground">Seats</div>
@@ -814,28 +833,22 @@ export default function FindCollegesPage() {
                           <div className="text-xs text-muted-foreground">Code: {college.courseCode}</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-lg font-bold text-primary">{college.cutoff}</div>
-                          {college.previousCutoff && (
-                            <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                              vs {college.previousCutoff}
-                              {college.cutoffDifference && college.cutoffDifference !== 0 && (
-                                <span className={college.cutoffDifference > 0 ? "text-green-600" : "text-red-600"}>
-                                  {college.cutoffDifference > 0 ? "+" : ""}{college.cutoffDifference.toFixed(2)}
-                                </span>
-                              )}
-                              <span className={`ml-1 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs ${
-                                college.trend === 'increasing' 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : college.trend === 'decreasing'
-                                    ? 'bg-amber-100 text-amber-800'
-                                    : 'bg-blue-100 text-blue-800'
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="text-lg font-bold text-primary">{college.cutoff}</div>
+                            {college.cutoffDifference && college.cutoffDifference !== 0 && (
+                              <div className={`text-sm font-medium ${
+                                college.cutoffDifference > 0 
+                                  ? 'text-green-600 dark:text-green-400' 
+                                  : 'text-red-600 dark:text-red-400'
                               }`}>
-                                {college.trend === 'increasing' 
-                                  ? '↑' 
-                                  : college.trend === 'decreasing'
-                                    ? '↓'
-                                    : '→'}
-                              </span>
+                                {college.cutoffDifference > 0 ? '↑' : '↓'}
+                                {college.cutoffDifference > 0 ? '+' : ''}{college.cutoffDifference.toFixed(1)}
+                              </div>
+                            )}
+                          </div>
+                          {college.previousCutoff && (
+                            <div className="text-xs text-muted-foreground">
+                              2023: {college.previousCutoff}
                             </div>
                           )}
                         </div>
