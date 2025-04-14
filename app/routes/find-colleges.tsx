@@ -29,8 +29,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { Check, ChevronsUpDown, Bookmark, BookmarkX } from "lucide-react";
+import { Check, ChevronsUpDown, Bookmark, BookmarkX, Search } from "lucide-react";
 import { cn } from "../lib/utils";
+import { Slider } from "../components/ui/slider";
+import { Input } from "../components/ui/input";
 
 // Create a cached data context
 interface CachedDataContextType {
@@ -144,13 +146,15 @@ export default function FindCollegesPage() {
   // Add a new state for sorting
   const [sortOption, setSortOption] = React.useState<string>("cutoff");
   
+  // Add debounce timer ref
+  const debounceTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  
   // Modify the filters state to use full course names instead of codes
   const [filters, setFilters] = React.useState({
     mark: searchParams.get("mark") || "",
     course: searchParams.get("course") || "ALL_COURSES",
     category: searchParams.get("category") || "OC",
-    district: searchParams.get("district") || "all_districts",
-    collegeType: searchParams.get("collegeType") || "all_types"
+    district: searchParams.get("district") || "all_districts"
   });
 
   // Sort function that will be applied to the college data
@@ -190,7 +194,6 @@ export default function FindCollegesPage() {
     if (filters.course && filters.course !== "ALL_COURSES") newParams.set("course", filters.course);
     if (filters.category && filters.category !== "OC") newParams.set("category", filters.category);
     if (filters.district && filters.district !== "all_districts") newParams.set("district", filters.district);
-    if (filters.collegeType && filters.collegeType !== "all_types") newParams.set("collegeType", filters.collegeType);
     
     setSearchParams(newParams, { replace: true });
   }, [filters, setSearchParams]);
@@ -215,8 +218,7 @@ export default function FindCollegesPage() {
         mark: filters.mark,
         course: filters.course === "ALL_COURSES" ? "" : filters.course,
         category: filters.category,
-        district: filters.district === "all_districts" ? "" : filters.district,
-        collegeType: filters.collegeType === "all_types" ? "" : filters.collegeType
+        district: filters.district === "all_districts" ? "" : filters.district
       };
       
       console.log("Processing data with filters:", normalizedFilters, "page:", page);
@@ -243,7 +245,6 @@ export default function FindCollegesPage() {
         course: normalizedFilters.course ? normalizedFilters.course : "",
         category: normalizedFilters.category,
         district: normalizedFilters.district,
-        collegeType: normalizedFilters.collegeType,
         page,
         pageSize
       });
@@ -352,11 +353,10 @@ export default function FindCollegesPage() {
       
       console.log("Display colleges processed:", newColleges.length);
       
-      // Modify the displayColleges state setting in the processData function
+      // Apply sorting
       if (append) {
         setDisplayColleges(prev => sortColleges([...prev, ...newColleges], sortOption));
       } else {
-        // Force a complete replacement here
         setDisplayColleges(sortColleges(newColleges, sortOption));
       }
       
@@ -385,8 +385,7 @@ export default function FindCollegesPage() {
     filters.mark, 
     filters.course, 
     filters.category, 
-    filters.district, 
-    filters.collegeType, 
+    filters.district,
     isCacheLoading
   ]); // List all filter fields explicitly
 
@@ -394,18 +393,17 @@ export default function FindCollegesPage() {
     processData(currentPage + 1, true);
   };
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
+  // Add debounced filter change handler
+  const handleFilterChange = (name: string, value: string) => {
+    // Clear any existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
     
-    // Don't automatically process data here, wait for submit or useEffect
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Reset to page 1 when manually applying filters
-    setDisplayColleges([]); // Clear existing results first
-    processData(1, false);
+    // Set a new timer to update filters after 500ms
+    debounceTimerRef.current = setTimeout(() => {
+      setFilters(prev => ({ ...prev, [name]: value }));
+    }, 500);
   };
 
   const resetFilters = () => {
@@ -414,8 +412,7 @@ export default function FindCollegesPage() {
       mark: "",
       course: "ALL_COURSES",
       category: "OC",
-      district: "all_districts",
-      collegeType: "all_types"
+      district: "all_districts"
     });
     
     // Clear URL parameters
@@ -474,12 +471,13 @@ export default function FindCollegesPage() {
       {/* Filters */}
       <section className="py-8 border-b">
         <div className="container mx-auto px-4">
-          <form onSubmit={handleSubmit} className="bg-card rounded-lg border p-6">
+          <form onSubmit={(e) => e.preventDefault()} className="bg-card rounded-lg border p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold">Filter Options</h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              {/* Expected Mark filter */}
               <div className="space-y-2">
                 <label htmlFor="mark" className="text-sm font-medium flex justify-between">
                   <span>Expected Mark</span>
@@ -493,17 +491,56 @@ export default function FindCollegesPage() {
                     </button>
                   )}
                 </label>
-                <input 
-                  id="mark"
-                  name="mark"
-                  type="text" 
-                  className="w-full rounded-md border border-input bg-background px-3 py-2"
-                  placeholder="180-200"
-                  value={filters.mark}
-                  onChange={handleFilterChange}
-                />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">{filters.mark || "Drag the slider"}</span>
+                    {filters.mark && (
+                      <span className="text-xs text-muted-foreground">
+                        {filters.mark.includes("-") 
+                          ? `Range: ${filters.mark}` 
+                          : `Exact: ${filters.mark}`}
+                      </span>
+                    )}
+                  </div>
+                  <Slider 
+                    id="mark"
+                    name="mark"
+                    min={100}
+                    max={200}
+                    step={1}
+                    defaultValue={[
+                      filters.mark 
+                        ? parseInt(filters.mark.split('-')[0]) || 175 
+                        : 175, 
+                      filters.mark 
+                        ? parseInt(filters.mark.split('-')[1]) || 185 
+                        : 185
+                    ]}
+                    onValueChange={(values) => {
+                      if (values.length === 2) {
+                        // Use the debounced handler
+                        if (debounceTimerRef.current) {
+                          clearTimeout(debounceTimerRef.current);
+                        }
+                        
+                        debounceTimerRef.current = setTimeout(() => {
+                          setFilters(prev => ({ 
+                            ...prev, 
+                            mark: `${values[0]}-${values[1]}` 
+                          }));
+                        }, 500);
+                      }
+                    }}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>100</span>
+                    <span>200</span>
+                  </div>
+                </div>
               </div>
               
+              {/* Course filter */}
               <div className="space-y-2">
                 <label htmlFor="course" className="text-sm font-medium flex justify-between">
                   <span>Course</span>
@@ -519,10 +556,7 @@ export default function FindCollegesPage() {
                 </label>
                 <Select
                   value={filters.course}
-                  onValueChange={(value) => setFilters(prev => ({ 
-                    ...prev, 
-                    course: value 
-                  }))}
+                  onValueChange={(value) => handleFilterChange("course", value)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Any Course">
@@ -546,6 +580,7 @@ export default function FindCollegesPage() {
                 </Select>
               </div>
               
+              {/* Category filter */}
               <div className="space-y-2">
                 <label htmlFor="category" className="text-sm font-medium flex justify-between">
                   <span>Category</span>
@@ -561,7 +596,7 @@ export default function FindCollegesPage() {
                 </label>
                 <Select
                   value={filters.category}
-                  onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}
+                  onValueChange={(value) => handleFilterChange("category", value)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="OC" />
@@ -578,6 +613,7 @@ export default function FindCollegesPage() {
                 </Select>
               </div>
               
+              {/* District filter */}
               <div className="space-y-2">
                 <label htmlFor="district" className="text-sm font-medium flex justify-between">
                   <span>District</span>
@@ -593,10 +629,7 @@ export default function FindCollegesPage() {
                 </label>
                 <Select
                   value={filters.district || "all_districts"}
-                  onValueChange={(value) => setFilters(prev => ({ 
-                    ...prev, 
-                    district: value === "all_districts" ? "" : value 
-                  }))}
+                  onValueChange={(value) => handleFilterChange("district", value === "all_districts" ? "" : value)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Any District">
@@ -619,56 +652,11 @@ export default function FindCollegesPage() {
                   </SelectContent>
                 </Select>
               </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="collegeType" className="text-sm font-medium flex justify-between">
-                  <span>College Type</span>
-                  {filters.collegeType !== "all_types" && (
-                    <button 
-                      type="button" 
-                      className="text-xs text-muted-foreground hover:text-foreground" 
-                      onClick={() => setFilters(prev => ({ ...prev, collegeType: "all_types" }))}
-                    >
-                      Reset
-                    </button>
-                  )}
-                </label>
-                <Select
-                  value={filters.collegeType || "all_types"}
-                  onValueChange={(value) => setFilters(prev => ({ 
-                    ...prev, 
-                    collegeType: value === "all_types" ? "" : value 
-                  }))}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Any Type">
-                      <span className="truncate block">
-                        {filters.collegeType && filters.collegeType !== "all_types" 
-                          ? filters.collegeType 
-                          : "Any Type"}
-                      </span>
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="all_types">Any Type</SelectItem>
-                      {collegeTypes.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          <span className="truncate block">{type}</span>
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
             
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end">
               <Button type="button" variant="outline" onClick={resetFilters}>
-                Reset All
-              </Button>
-              <Button type="submit" className="min-w-[120px]">
-                {loading ? "Searching..." : "Apply Filters"}
+                Reset All Filters
               </Button>
             </div>
           </form>
@@ -694,7 +682,11 @@ export default function FindCollegesPage() {
         
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-semibold">
-              {loading || isCacheLoading ? "Searching colleges..." : `${displayColleges.length} Colleges Found`}
+              {loading || isCacheLoading ? "Searching colleges..." : 
+                totalColleges > 0 ? 
+                  `Showing ${displayColleges.length} of ${totalColleges} Colleges` : 
+                  "No Colleges Found"
+              }
             </h2>
             {displayColleges.length > 0 && (
               <div className="flex items-center space-x-3">
@@ -808,9 +800,6 @@ export default function FindCollegesPage() {
                           }}>
                             Details
                           </Button>
-                          <Button size="sm" className="flex-1" asChild>
-                            <Link to={`/compare?colleges=${college.id}`}>Compare</Link>
-                          </Button>
                         </div>
                       </div>
 
@@ -876,9 +865,7 @@ export default function FindCollegesPage() {
                             }}>
                               Details
                             </Button>
-                            <Button size="sm" className="px-2 py-1 h-7 text-xs" asChild>
-                              <Link to={`/compare?colleges=${college.id}`}>Compare</Link>
-                            </Button>
+                           
                           </div>
                         </div>
                       </div>

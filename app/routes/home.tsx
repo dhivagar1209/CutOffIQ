@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
 import { Search, School, BookOpen, BookmarkCheck, TrendingUp, Filter } from "lucide-react";
+import { Slider } from "../components/ui/slider";
 
 export function meta() {
   return [
@@ -135,16 +136,16 @@ export default function Home() {
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-3">
                 <Button variant="outline" asChild>
-                  <Link to="/find-colleges?course=COMPUTER%20SCIENCE%20AND%20ENGINEERING">CSE</Link>
+                  <Link to="/find-colleges?course=Computer Science and Engineering">CSE</Link>
                 </Button>
                 <Button variant="outline" asChild>
-                  <Link to="/find-colleges?course=INFORMATION%20TECHNOLOGY">IT</Link>
+                  <Link to="/find-colleges?course=Information Technology">IT</Link>
                 </Button>
                 <Button variant="outline" asChild>
-                  <Link to="/find-colleges?course=ELECTRONICS%20AND%20COMMUNICATION%20ENGINEERING">ECE</Link>
+                  <Link to="/find-colleges?course=Electronics and Communication Engineering">ECE</Link>
                 </Button>
                 <Button variant="outline" asChild>
-                  <Link to="/find-colleges?course=MECHANICAL%20ENGINEERING">Mechanical</Link>
+                  <Link to="/find-colleges?course=Mechanical Engineering">Mechanical</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -156,37 +157,81 @@ export default function Home() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Find by Mark Range</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <Button variant="outline" className="h-auto py-6 flex flex-col" asChild>
-              <Link to="/find-colleges?mark=190-200">
-                <span className="text-2xl font-bold mb-1">190-200</span>
-                <span className="text-xs text-muted-foreground">Top Tier</span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-auto py-6 flex flex-col" asChild>
-              <Link to="/find-colleges?mark=180-190">
-                <span className="text-2xl font-bold mb-1">180-190</span>
-                <span className="text-xs text-muted-foreground">Premier</span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-auto py-6 flex flex-col" asChild>
-              <Link to="/find-colleges?mark=170-180">
-                <span className="text-2xl font-bold mb-1">170-180</span>
-                <span className="text-xs text-muted-foreground">Excellent</span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-auto py-6 flex flex-col" asChild>
-              <Link to="/find-colleges?mark=150-170">
-                <span className="text-2xl font-bold mb-1">150-170</span>
-                <span className="text-xs text-muted-foreground">Very Good</span>
-              </Link>
-            </Button>
-            <Button variant="outline" className="h-auto py-6 flex flex-col" asChild>
-              <Link to="/find-colleges?mark=100-150">
-                <span className="text-2xl font-bold mb-1">100-150</span>
-                <span className="text-xs text-muted-foreground">Good</span>
-              </Link>
-            </Button>
+          
+          <div className="max-w-xl mx-auto bg-card rounded-lg border p-6">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-lg font-medium">Select Your Expected Cutoff:</label>
+                  <span id="rangeValue" className="text-2xl font-bold text-primary">175-185</span>
+                </div>
+                
+                <Slider
+                  id="markSlider"
+                  min={100}
+                  max={200}
+                  step={1}
+                  defaultValue={[175, 185]}
+                  onValueChange={(values) => {
+                    if (values.length === 2) {
+                      const min = values[0];
+                      const max = values[1];
+                      const range = `${min}-${max}`;
+                      
+                      // Update displayed range value
+                      const rangeDisplay = document.getElementById('rangeValue');
+                      if (rangeDisplay) {
+                        rangeDisplay.textContent = range;
+                      }
+                      
+                      // Update the link's href
+                      const findButton = document.getElementById('findCollegesLink');
+                      if (findButton) {
+                        findButton.setAttribute('href', `/find-colleges?mark=${range}`);
+                      }
+                    }
+                  }}
+                  className="w-full"
+                />
+                
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>100</span>
+                  <span>200</span>
+                </div>
+              </div>
+              
+              <div className="flex justify-center">
+                <Button size="lg" asChild>
+                  <Link id="findCollegesLink" to="/find-colleges?mark=175-185">
+                    <Search className="mr-2 h-5 w-5" />
+                    Find Matching Colleges
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-5 gap-2 text-center text-sm">
+                <div className="p-2 border rounded-md bg-muted/30">
+                  <span className="block font-semibold">190-200</span>
+                  <span className="text-xs text-muted-foreground">Top Tier</span>
+                </div>
+                <div className="p-2 border rounded-md bg-muted/30">
+                  <span className="block font-semibold">180-190</span>
+                  <span className="text-xs text-muted-foreground">Premier</span>
+                </div>
+                <div className="p-2 border rounded-md bg-muted/30">
+                  <span className="block font-semibold">170-180</span>
+                  <span className="text-xs text-muted-foreground">Excellent</span>
+                </div>
+                <div className="p-2 border rounded-md bg-muted/30">
+                  <span className="block font-semibold">150-170</span>
+                  <span className="text-xs text-muted-foreground">Very Good</span>
+                </div>
+                <div className="p-2 border rounded-md bg-muted/30">
+                  <span className="block font-semibold">100-150</span>
+                  <span className="text-xs text-muted-foreground">Good</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

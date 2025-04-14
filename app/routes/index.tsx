@@ -21,7 +21,11 @@ export default function HomePage() {
     }
     
     if (selectedCourse) {
-      params.append("course", selectedCourse);
+      // Find the course name using the selected code
+      const selectedCourseObj = courses.find((course) => course.code === selectedCourse);
+      if (selectedCourseObj) {
+        params.append("course", selectedCourseObj.name);
+      }
     }
     
     if (selectedCategory) {
